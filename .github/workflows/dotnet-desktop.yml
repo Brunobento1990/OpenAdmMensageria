@@ -17,9 +17,9 @@ jobs:
       with:
         dotnet-version: '8.0.x'
     - name: Install dependencies
-      run: dotnet restore ./OpenAdmMensageria
+      run: dotnet restore
     - name: Build
-      run: dotnet build ./OpenAdmMensageria --configuration Release
+      run: dotnet build --configuration Release
     - name: Build-Image-Docker
       run: docker build ./ -t brunobentocaina/open-adm-mensageria:latest
     - name: Push
