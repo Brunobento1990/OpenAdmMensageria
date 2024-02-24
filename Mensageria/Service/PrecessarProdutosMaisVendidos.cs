@@ -1,6 +1,5 @@
 ﻿using Domain.Pkg.Entities;
 using Mensageria.Domain.Interfaces;
-using Mensageria.Dtos.ProdutosMaisVendidos;
 using Mensageria.Interfaces;
 
 namespace Mensageria.Service;
@@ -14,9 +13,9 @@ public class PrecessarProdutosMaisVendidos : IPrecessarProdutosMaisVendidos
         _produtosMaisVendidosRepository = produtosMaisVendidosRepository;
     }
 
-    public async Task ProcessarAsync(IList<AddOrUpdateProdutosMaisVendidosDto> addOrUpdateProdutosMaisVendidosDtos, string referer)
+    public async Task ProcessarAsync(Pedido pedido, string referer)
     {
-        var produtosIds = addOrUpdateProdutosMaisVendidosDtos
+        var produtosIds = pedido.ItensPedido
             .Select(x => x.ProdutoId)
             .ToList();
 
@@ -26,14 +25,14 @@ public class PrecessarProdutosMaisVendidos : IPrecessarProdutosMaisVendidos
         var updates = new List<ProdutosMaisVendidos>();
         var date = DateTime.Now;
 
-        foreach (var addOrUpdateDto in addOrUpdateProdutosMaisVendidosDtos)
+        foreach (var itens in pedido.ItensPedido)
         {
             var addOrUpdate = produtosMaisVendidos
-                .FirstOrDefault(x => x.ProdutoId == addOrUpdateDto.ProdutoId);
+                .FirstOrDefault(x => x.ProdutoId == itens.ProdutoId);
 
             if (addOrUpdate == null)
             {
-                var insert = add.FirstOrDefault(x => x.ProdutoId == addOrUpdateDto.ProdutoId);
+                var insert = add.FirstOrDefault(x => x.ProdutoId == itens.ProdutoId);
 
                 if (insert == null)
                 {
@@ -42,30 +41,30 @@ public class PrecessarProdutosMaisVendidos : IPrecessarProdutosMaisVendidos
                         date,
                         date,
                         0,
-                        addOrUpdateDto.QuantidadeProdutos,
+                        itens.Quantidade,
                         1,
-                        addOrUpdateDto.ProdutoId);
+                        itens.ProdutoId);
 
                     add.Add(addOrUpdate);
                 }
                 else
                 {
-                    insert.UpdateQuantidadeProdutos(addOrUpdateDto.QuantidadeProdutos);
+                    insert.UpdateQuantidadeProdutos(itens.Quantidade);
                 }
 
             }
             else
             {
-                var update = updates.FirstOrDefault(x => x.ProdutoId == addOrUpdateDto.ProdutoId);
+                var update = updates.FirstOrDefault(x => x.ProdutoId == itens.ProdutoId);
 
                 if (update == null)
                 {
-                    addOrUpdate.UpdateQuantidadeProdutos(addOrUpdateDto.QuantidadeProdutos);
+                    addOrUpdate.UpdateQuantidadeProdutos(itens.Quantidade);
                     updates.Add(addOrUpdate);
                 }
                 else
                 {
-                    update.UpdateQuantidadeProdutos(addOrUpdateDto.QuantidadeProdutos);
+                    update.UpdateQuantidadeProdutos(itens.Quantidade);
                 }
 
             }

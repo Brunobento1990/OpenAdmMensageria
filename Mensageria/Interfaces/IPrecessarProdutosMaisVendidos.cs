@@ -1,8 +1,8 @@
-﻿using Mensageria.Dtos.ProdutosMaisVendidos;
+﻿using Domain.Pkg.Entities;
 
 namespace Mensageria.Interfaces;
 
 public interface IPrecessarProdutosMaisVendidos
 {
-    Task ProcessarAsync(IList<AddOrUpdateProdutosMaisVendidosDto> addOrUpdateProdutosMaisVendidosDtos, string referer);
+    Task ProcessarAsync(Pedido pedido, string referer);
 }

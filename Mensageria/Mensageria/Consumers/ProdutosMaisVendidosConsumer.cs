@@ -4,14 +4,13 @@ using System.Text;
 using System.Text.Json;
 using Mensageria.Interfaces;
 using Mensageria.Model;
-using Mensageria.Dtos.ProdutosMaisVendidos;
 
 namespace Mensageria.Mensageria.Consumers;
 
 public class ProdutosMaisVendidosConsumer : BackgroundService
 {
     private readonly IModel _channel;
-    private const string ExchangeName = "produtos-mais-vendidos";
+    private const string ExchangeName = "pedido-entregue";
     private readonly string _queueName;
     private readonly IServiceProvider _provider;
 
@@ -38,16 +37,16 @@ public class ProdutosMaisVendidosConsumer : BackgroundService
 
                 var body = e.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                var produtosMaisVendidos = JsonSerializer.Deserialize<IList<AddOrUpdateProdutosMaisVendidosDto>>(message);
+                var pedidoCreateModel = JsonSerializer.Deserialize<PedidoCreateModel>(message);
 
-                if (produtosMaisVendidos != null)
+                if (pedidoCreateModel != null)
                 {
                     using var scope = _provider.CreateScope();
 
                     try
                     {
                         var service = scope.ServiceProvider.GetRequiredService<IPrecessarProdutosMaisVendidos>();
-                        await service.ProcessarAsync(produtosMaisVendidos, referer);
+                        await service.ProcessarAsync(pedidoCreateModel.Pedido, referer);
                     }
                     catch (Exception ex)
                     {
