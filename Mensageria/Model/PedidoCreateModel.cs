@@ -1,4 +1,4 @@
-﻿using Mensageria.Entities;
+﻿using Domain.Pkg.Entities;
 
 namespace Mensageria.Model;
 

@@ -1,17 +1,27 @@
 using dotenv.net;
 using Mensageria;
+using Mensageria.Infra.Context;
 using Mensageria.Interfaces;
 using Mensageria.Mensageria;
 using Mensageria.Mensageria.Consumers;
 using Mensageria.Service;
 using QuestPDF.Infrastructure;
 using RabbitMQ.Client;
+using Microsoft.EntityFrameworkCore;
+using Mensageria.Domain.Interfaces;
+using Mensageria.Infra.Repositories;
+using Mensageria.Infra.Interfaces;
+using Mensageria.Infra.Factories;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 DotEnv.Load();
 
 QuestPDF.Settings.License = LicenseType.Community;
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+string connectionString = VariaveisDeAmbiente.GetVariavel("STRING_CONNECTION");
+builder.Services.AddDbContext<OpenAdmContext>(opt => opt.UseNpgsql(connectionString));
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -24,8 +34,13 @@ builder.Services.AddTransient<IModel>(s => s.GetRequiredService<IConnection>().C
 builder.Services.AddScoped<IPedidoPdfService, PedidoPdfService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICachedService, CachedService>();
+builder.Services.AddScoped<IConfiguracaoParceiroRepository, ConfiguracaoParceiroRepository>();
+builder.Services.AddScoped<IFactoryParceiroContext, FactoryParceiroContext>();
+builder.Services.AddScoped<IProdutosMaisVendidosRepository, ProdutosMaisVendidosRepository>();
+builder.Services.AddScoped<IPrecessarProdutosMaisVendidos, PrecessarProdutosMaisVendidos>();
 
 builder.Services.AddHostedService<PedidoCreatePdfConsumer>();
+builder.Services.AddHostedService<ProdutosMaisVendidosConsumer>();
 
 var host = builder.Build();
 host.Run();

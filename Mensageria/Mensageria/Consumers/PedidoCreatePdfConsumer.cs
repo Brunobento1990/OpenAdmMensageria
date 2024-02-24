@@ -29,6 +29,13 @@ public class PedidoCreatePdfConsumer : BackgroundService
 
         consumer.Received += async (sender, e) =>
         {
+            var headers = e.BasicProperties.Headers;
+
+            if (headers.ContainsKey("Referer"))
+            {
+                var refererHeaderValue = Encoding.UTF8.GetString((byte[])headers["Referer"]);
+                Console.WriteLine($"Referer: {refererHeaderValue}");
+            }
             var body = e.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
             var pedido = JsonSerializer.Deserialize<PedidoCreateModel>(message);
