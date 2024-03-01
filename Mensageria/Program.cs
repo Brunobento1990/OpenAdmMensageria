@@ -31,7 +31,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 builder.Services.AddSingleton<IConnection>(s => ConnectionBase.InitConnection());
 builder.Services.AddTransient<IModel>(s => s.GetRequiredService<IConnection>().CreateModel());
 
-builder.Services.AddScoped<IPedidoPdfService, PedidoPdfService>();
+builder.Services.AddScoped<IEnviarPedidoService, EnviarPedidoService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICachedService, CachedService>();
 builder.Services.AddScoped<IConfiguracaoParceiroRepository, ConfiguracaoParceiroRepository>();

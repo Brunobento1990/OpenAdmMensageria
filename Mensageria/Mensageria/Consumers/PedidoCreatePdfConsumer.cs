@@ -29,13 +29,6 @@ public class PedidoCreatePdfConsumer : BackgroundService
 
         consumer.Received += async (sender, e) =>
         {
-            var headers = e.BasicProperties.Headers;
-
-            if (headers.ContainsKey("Referer"))
-            {
-                var refererHeaderValue = Encoding.UTF8.GetString((byte[])headers["Referer"]);
-                Console.WriteLine($"Referer: {refererHeaderValue}");
-            }
             var body = e.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
             var pedido = JsonSerializer.Deserialize<PedidoCreateModel>(message);
@@ -46,8 +39,8 @@ public class PedidoCreatePdfConsumer : BackgroundService
 
                 try
                 {
-                    var pedidoService = scope.ServiceProvider.GetRequiredService<IPedidoPdfService>();
-                    pedidoService.GeneratePdfAsync(pedido);
+                    var pedidoService = scope.ServiceProvider.GetRequiredService<IEnviarPedidoService>();
+                    pedidoService.EnviarPdf(pedido);
                     var cached = scope.ServiceProvider.GetRequiredService<ICachedService>();
                     await cached.RemoveCachedAsync(pedido.Pedido.UsuarioId.ToString());
                 }
