@@ -1,4 +1,5 @@
-﻿using Mensageria.Domain.Interfaces;
+﻿using Domain.Pkg.Cryptography;
+using Mensageria.Domain.Interfaces;
 using Mensageria.Infra.Context;
 using Mensageria.Infra.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,8 @@ public class FactoryParceiroContext : IFactoryParceiroContext
 
     public async Task<ParceiroContext> CreateParceiroContextAsync(string referer)
     {
-        var connectionString = await _configuracaoParceiroRepository.GetConnectionStringParceiroAsync(referer);
+        var encrypt = _configuracaoParceiroRepository.GetConnectionStringParceiroAsync(referer).Result;
+        var connectionString = CryptographyGeneric.Decrypt(encrypt);
 
         var optionsBuilderParceiro = new DbContextOptionsBuilder<ParceiroContext>();
 
