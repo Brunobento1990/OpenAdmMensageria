@@ -40,7 +40,7 @@ public class PedidoCreatePdfConsumer : BackgroundService
                 try
                 {
                     var pedidoService = scope.ServiceProvider.GetRequiredService<IEnviarPedidoService>();
-                    pedidoService.EnviarPdf(pedido);
+                    await pedidoService.EnviarPdfAsync(pedido);
                     var cached = scope.ServiceProvider.GetRequiredService<ICachedService>();
                     await cached.RemoveCachedAsync(pedido.Pedido.UsuarioId.ToString());
                 }

@@ -4,5 +4,5 @@ namespace Mensageria.Interfaces;
 
 public interface IEnviarPedidoService
 {
-    void EnviarPdf(PedidoCreateModel pedido);
+    Task EnviarPdfAsync(PedidoCreateModel pedido);
 }

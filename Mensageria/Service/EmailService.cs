@@ -20,7 +20,7 @@ public class EmailService : IEmailService
         _port = int.Parse(VariaveisDeAmbiente.GetVariavel("PORT"));
     }
 
-    public bool SendEmail(EnvioEmailModel envioEmailModel)
+    public async Task<bool> SendEmail(EnvioEmailModel envioEmailModel)
     {
         try
         {
@@ -38,11 +38,15 @@ public class EmailService : IEmailService
                 mail.Attachments.Add(anexo);
             }
 
-            var smtp = new SmtpClient(_server, _port);
-            smtp.EnableSsl = true;
-            smtp.UseDefaultCredentials = false;
-            smtp.Credentials = new NetworkCredential(_email, _senha);
-            smtp.Send(mail);
+            var smtp = new SmtpClient()
+            {
+                Host = _server,
+                Port = _port,
+                EnableSsl = true,
+                Timeout = 1000000,
+                Credentials = new NetworkCredential(_email, _senha)
+            };
+            await smtp.SendMailAsync(mail);
 
             return true;
         }

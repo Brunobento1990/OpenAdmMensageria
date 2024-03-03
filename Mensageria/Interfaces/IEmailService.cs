@@ -4,5 +4,5 @@ namespace Mensageria.Interfaces;
 
 public interface IEmailService
 {
-    bool SendEmail(EnvioEmailModel envioEmailModel);
+    Task<bool> SendEmail(EnvioEmailModel envioEmailModel);
 }
