@@ -43,7 +43,6 @@ public class EmailService : IEmailService
                 Host = _server,
                 Port = _port,
                 EnableSsl = true,
-                Timeout = 1000000,
                 Credentials = new NetworkCredential(_email, _senha)
             };
             await smtp.SendMailAsync(mail);
