@@ -1,20 +1,21 @@
-﻿using RabbitMQ.Client.Events;
-using RabbitMQ.Client;
-using System.Text;
-using System.Text.Json;
+﻿
 using Mensageria.Interfaces;
 using Mensageria.Model;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text;
+using System.Text.Json;
 
 namespace Mensageria.Mensageria.Consumers;
 
-public class ProdutosMaisVendidosConsumer : BackgroundService
+public class MovimentacaoDeProdutosConsumer : BackgroundService
 {
     private readonly IModel _channel;
     private const string ExchangeName = "pedido-entregue";
     private readonly string _queueName;
     private readonly IServiceProvider _provider;
 
-    public ProdutosMaisVendidosConsumer(IModel channel, IServiceProvider provider)
+    public MovimentacaoDeProdutosConsumer(IModel channel, IServiceProvider provider)
     {
         _provider = provider;
         _channel = channel;
@@ -22,7 +23,6 @@ public class ProdutosMaisVendidosConsumer : BackgroundService
         _queueName = _channel.QueueDeclare().QueueName;
         _channel.QueueBind(_queueName, ExchangeName, "");
     }
-
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var consumer = new EventingBasicConsumer(_channel);
@@ -45,17 +45,17 @@ public class ProdutosMaisVendidosConsumer : BackgroundService
 
                     try
                     {
-                        var service = scope.ServiceProvider.GetRequiredService<IPrecessarProdutosMaisVendidos>();
-                        await service.ProcessarAsync(pedidoCreateModel.Pedido, referer);
+                        var service = scope.ServiceProvider.GetRequiredService<IMovimentacaoDeProdutoService>();
+                        await service.MovimentarProdutosAsync(pedidoCreateModel.Pedido, referer);
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Erro rabbitMq consumer produtos mais vendidos: {ex.Message}");
+                        Console.WriteLine($"Erro rabbitMq movimentar o estoque: {ex.Message}");
                         throw new Exception(ex.Message);
                     }
                 }
             }
-            
+
             _channel.BasicAck(e.DeliveryTag, false);
         };
 

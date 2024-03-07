@@ -38,9 +38,13 @@ builder.Services.AddScoped<IConfiguracaoParceiroRepository, ConfiguracaoParceiro
 builder.Services.AddScoped<IFactoryParceiroContext, FactoryParceiroContext>();
 builder.Services.AddScoped<IProdutosMaisVendidosRepository, ProdutosMaisVendidosRepository>();
 builder.Services.AddScoped<IPrecessarProdutosMaisVendidos, PrecessarProdutosMaisVendidos>();
+builder.Services.AddScoped<IMovimentacaoDeProdutoRepository, MovimentacaoDeProdutoRepository>();
+builder.Services.AddScoped<IEstoqueRepository, EstoqueRepository>();
+builder.Services.AddScoped<IMovimentacaoDeProdutoService, MovimentacaoDeProdutoService>();
 
 builder.Services.AddHostedService<PedidoCreatePdfConsumer>();
 builder.Services.AddHostedService<ProdutosMaisVendidosConsumer>();
+builder.Services.AddHostedService<MovimentacaoDeProdutosConsumer>();
 
 var host = builder.Build();
 host.Run();
