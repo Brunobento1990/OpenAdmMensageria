@@ -20,6 +20,7 @@ public class MovimentacaoDeProdutoService : IMovimentacaoDeProdutoService
 
     public async Task MovimentarProdutosAsync(Pedido pedido, string referer)
     {
+        var date = DateTime.Now;
         var produtoIds = pedido
             .ItensPedido
             .DistinctBy(x => x.ProdutoId)
@@ -32,32 +33,72 @@ public class MovimentacaoDeProdutoService : IMovimentacaoDeProdutoService
             .Select(x =>
                 new MovimentacaoDeProduto(
                     Guid.NewGuid(),
-                    pedido.DataDeCriacao,
-                    pedido.DataDeAtualizacao,
+                    date,
+                    date,
                     0,
                     x.Quantidade,
                     TipoMovimentacaoDeProduto.Saida,
-                    x.ProdutoId))
+                    x.ProdutoId,
+                    x.TamanhoId,
+                    x.PesoId))
             .ToList();
 
         await _movimentacaoDeProdutoRepository.AddMovimentacaoDeProdutosAsync(movimntosDeProdutos, referer);
 
-        var newEstoques = new List<Estoque>();
 
+        var newEstoques = new List<Estoque>();
         foreach (var item in pedido.ItensPedido)
         {
-            var estoque = estoques
-                .FirstOrDefault(x => x.ProdutoId == item.ProdutoId);
+            bool where(Estoque x) => x.ProdutoId == item.ProdutoId &&
+                x.TamanhoId == item.TamanhoId &&
+                x.PesoId == item.PesoId;
+
+            ProcessarEstoqueItemPedido(estoques, item, newEstoques, date, where);
+        }
+
+        await _estoqueRepository.UpdateEstoqueAsync(estoques, referer);
+        await _estoqueRepository.AddEstoqueAsync(newEstoques, referer);
+    }
+
+    private static void ProcessarEstoqueItemPedido(
+        IList<Estoque> estoques,
+        ItensPedido item,
+        List<Estoque> newEstoques,
+        DateTime date,
+        Func<Estoque, bool> where)
+    {
+        var estoque = estoques
+                .FirstOrDefault(where);
+
+        if (estoque == null)
+        {
+            estoque = new Estoque(
+                    Guid.NewGuid(),
+                    date,
+                    date,
+                    0,
+                    item.ProdutoId,
+                    -item.Quantidade,
+                    item.TamanhoId,
+                    item.PesoId);
+
+            newEstoques.Add(estoque);
+        }
+        else
+        {
+            estoque = newEstoques.FirstOrDefault(where);
 
             if (estoque == null)
             {
                 estoque = new Estoque(
-                        Guid.NewGuid(),
-                        pedido.DataDeCriacao,
-                        pedido.DataDeAtualizacao,
-                        0,
-                        item.ProdutoId,
-                        item.Quantidade);
+                    Guid.NewGuid(),
+                    date,
+                    date,
+                    0,
+                    item.ProdutoId,
+                    -item.Quantidade,
+                    item.TamanhoId,
+                    item.PesoId);
 
                 newEstoques.Add(estoque);
             }
@@ -65,9 +106,7 @@ public class MovimentacaoDeProdutoService : IMovimentacaoDeProdutoService
             {
                 estoque.UpdateEstoque(item.Quantidade, TipoMovimentacaoDeProduto.Saida);
             }
-        }
 
-        await _estoqueRepository.UpdateEstoqueAsync(estoques, referer);
-        await _estoqueRepository.AddEstoqueAsync(newEstoques, referer);
+        }
     }
 }

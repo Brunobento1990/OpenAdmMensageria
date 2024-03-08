@@ -1,5 +1,6 @@
 ﻿using Domain.Pkg.Entities;
 using Microsoft.EntityFrameworkCore;
+using OpenAdm.Infra.EntityConfiguration;
 
 namespace Mensageria.Infra.Context;
 
@@ -24,4 +25,26 @@ public class ParceiroContext(DbContextOptions options)
     public DbSet<ConfiguracoesDePedido> ConfiguracoesDePedidos { get; set; }
     public DbSet<Estoque> Estoques { get; set; }
     public DbSet<MovimentacaoDeProduto> MovimentacoesDeProdutos { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfiguration(new BannerConfiguration());
+        modelBuilder.ApplyConfiguration(new CategoriaConfiguration());
+        modelBuilder.ApplyConfiguration(new PesoConfiguration());
+        modelBuilder.ApplyConfiguration(new PesosProdutosConfiguration());
+        modelBuilder.ApplyConfiguration(new ProdutoConfiguration());
+        modelBuilder.ApplyConfiguration(new TamanhoConfiguration());
+        modelBuilder.ApplyConfiguration(new TamanhosProdutosConfiguration());
+        modelBuilder.ApplyConfiguration(new UsuarioConfiguration());
+        modelBuilder.ApplyConfiguration(new PedidoConfiguration());
+        modelBuilder.ApplyConfiguration(new ItensPedidoConfiguration());
+        modelBuilder.ApplyConfiguration(new FuncionarioConfiguration());
+        modelBuilder.ApplyConfiguration(new TabelaDePrecoConfiguration());
+        modelBuilder.ApplyConfiguration(new ItensTabelaDePrecoConfiguration());
+        modelBuilder.ApplyConfiguration(new ProdutosMaisVendidosConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfiguracaoDeEmailConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfiguracoesDePedidoConfiguration());
+        modelBuilder.ApplyConfiguration(new EstoqueConfiguration());
+        modelBuilder.ApplyConfiguration(new MovimentacaoDeProdutoConfiguration());
+    }
 }
