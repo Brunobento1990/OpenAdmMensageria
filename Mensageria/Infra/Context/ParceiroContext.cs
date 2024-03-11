@@ -1,4 +1,5 @@
 ﻿using Domain.Pkg.Entities;
+using Mensageria.Infra.EntityConfiguration;
 using Microsoft.EntityFrameworkCore;
 using OpenAdm.Infra.EntityConfiguration;
 
@@ -25,6 +26,7 @@ public class ParceiroContext(DbContextOptions options)
     public DbSet<ConfiguracoesDePedido> ConfiguracoesDePedidos { get; set; }
     public DbSet<Estoque> Estoques { get; set; }
     public DbSet<MovimentacaoDeProduto> MovimentacoesDeProdutos { get; set; }
+    public DbSet<TopUsuarios> TopUsuarios { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,5 +48,6 @@ public class ParceiroContext(DbContextOptions options)
         modelBuilder.ApplyConfiguration(new ConfiguracoesDePedidoConfiguration());
         modelBuilder.ApplyConfiguration(new EstoqueConfiguration());
         modelBuilder.ApplyConfiguration(new MovimentacaoDeProdutoConfiguration());
+        modelBuilder.ApplyConfiguration(new TopUsuariosConfiguration());
     }
 }

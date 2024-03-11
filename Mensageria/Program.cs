@@ -34,6 +34,7 @@ builder.Services.AddTransient<IModel>(s => s.GetRequiredService<IConnection>().C
 builder.Services.AddScoped<IEnviarPedidoService, EnviarPedidoService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICachedService, CachedService>();
+builder.Services.AddScoped<ITopUsuarioService, TopUsuarioService>();
 builder.Services.AddScoped<IConfiguracaoParceiroRepository, ConfiguracaoParceiroRepository>();
 builder.Services.AddScoped<IFactoryParceiroContext, FactoryParceiroContext>();
 builder.Services.AddScoped<IProdutosMaisVendidosRepository, ProdutosMaisVendidosRepository>();
@@ -41,10 +42,12 @@ builder.Services.AddScoped<IPrecessarProdutosMaisVendidos, PrecessarProdutosMais
 builder.Services.AddScoped<IMovimentacaoDeProdutoRepository, MovimentacaoDeProdutoRepository>();
 builder.Services.AddScoped<IEstoqueRepository, EstoqueRepository>();
 builder.Services.AddScoped<IMovimentacaoDeProdutoService, MovimentacaoDeProdutoService>();
+builder.Services.AddScoped<ITopUsuarioRepository, TopUsuarioRepository>();
 
 builder.Services.AddHostedService<PedidoCreatePdfConsumer>();
 builder.Services.AddHostedService<ProdutosMaisVendidosConsumer>();
 builder.Services.AddHostedService<MovimentacaoDeProdutosConsumer>();
+builder.Services.AddHostedService<TopUsuariosConsumer>();
 
 var host = builder.Build();
 host.Run();
