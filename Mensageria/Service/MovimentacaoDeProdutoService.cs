@@ -70,43 +70,30 @@ public class MovimentacaoDeProdutoService : IMovimentacaoDeProdutoService
         var estoque = estoques
                 .FirstOrDefault(where);
 
-        if (estoque == null)
+        if (estoque != null)
         {
-            estoque = new Estoque(
-                    Guid.NewGuid(),
-                    date,
-                    date,
-                    0,
-                    item.ProdutoId,
-                    -item.Quantidade,
-                    item.TamanhoId,
-                    item.PesoId);
-
-            newEstoques.Add(estoque);
+            estoque.UpdateEstoque(item.Quantidade, TipoMovimentacaoDeProduto.Saida);
+            return;
         }
-        else
+
+        estoque = newEstoques.FirstOrDefault(where);
+
+        if (estoque != null)
         {
-            estoque = newEstoques.FirstOrDefault(where);
-
-            if (estoque == null)
-            {
-                estoque = new Estoque(
-                    Guid.NewGuid(),
-                    date,
-                    date,
-                    0,
-                    item.ProdutoId,
-                    -item.Quantidade,
-                    item.TamanhoId,
-                    item.PesoId);
-
-                newEstoques.Add(estoque);
-            }
-            else
-            {
-                estoque.UpdateEstoque(item.Quantidade, TipoMovimentacaoDeProduto.Saida);
-            }
-
+            estoque.UpdateEstoque(item.Quantidade, TipoMovimentacaoDeProduto.Saida);
+            return;
         }
+
+        estoque = new Estoque(
+            Guid.NewGuid(),
+            date,
+            date,
+            0,
+            item.ProdutoId,
+            -item.Quantidade,
+            item.TamanhoId,
+            item.PesoId);
+
+        newEstoques.Add(estoque);
     }
 }
