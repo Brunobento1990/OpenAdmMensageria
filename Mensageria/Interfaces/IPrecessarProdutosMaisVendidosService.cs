@@ -2,7 +2,7 @@
 
 namespace Mensageria.Interfaces;
 
-public interface IPrecessarProdutosMaisVendidos
+public interface IPrecessarProdutosMaisVendidosService
 {
     Task ProcessarAsync(Pedido pedido, string referer);
 }

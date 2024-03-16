@@ -4,11 +4,11 @@ using Mensageria.Interfaces;
 
 namespace Mensageria.Service;
 
-public class PrecessarProdutosMaisVendidos : IPrecessarProdutosMaisVendidos
+public class PrecessarProdutosMaisVendidosService : IPrecessarProdutosMaisVendidosService
 {
     private readonly IProdutosMaisVendidosRepository _produtosMaisVendidosRepository;
 
-    public PrecessarProdutosMaisVendidos(IProdutosMaisVendidosRepository produtosMaisVendidosRepository)
+    public PrecessarProdutosMaisVendidosService(IProdutosMaisVendidosRepository produtosMaisVendidosRepository)
     {
         _produtosMaisVendidosRepository = produtosMaisVendidosRepository;
     }

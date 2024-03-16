@@ -45,7 +45,7 @@ public class ProdutosMaisVendidosConsumer : BackgroundService
 
                     try
                     {
-                        var service = scope.ServiceProvider.GetRequiredService<IPrecessarProdutosMaisVendidos>();
+                        var service = scope.ServiceProvider.GetRequiredService<IPrecessarProdutosMaisVendidosService>();
                         await service.ProcessarAsync(pedidoCreateModel.Pedido, referer);
                     }
                     catch (Exception ex)
