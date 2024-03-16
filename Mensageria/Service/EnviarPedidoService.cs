@@ -1,4 +1,6 @@
-﻿using Domain.Pkg.Pdfs.Services;
+﻿using Domain.Pkg.Interfaces;
+using Domain.Pkg.Model;
+using Domain.Pkg.Pdfs.Services;
 using Mensageria.Interfaces;
 using Mensageria.Model;
 using System.Text;
@@ -8,9 +10,17 @@ namespace Mensageria.Service;
 public class EnviarPedidoService : IEnviarPedidoService
 {
     private readonly IEmailService _emailService;
+    private readonly FromEnvioEmailModel _fromEmailModel;
 
     public EnviarPedidoService(IEmailService emailService)
     {
+        _fromEmailModel = new FromEnvioEmailModel()
+        {
+            Email = VariaveisDeAmbiente.GetVariavel("EMAIL"),
+            Servidor = VariaveisDeAmbiente.GetVariavel("SERVER"),
+            Senha = VariaveisDeAmbiente.GetVariavel("SENHA"),
+            Porta = int.Parse(VariaveisDeAmbiente.GetVariavel("PORT"))
+        };
         _emailService = emailService;
     }
     public async Task EnviarPdfAsync(PedidoCreateModel pedidoCreateModel)
@@ -22,7 +32,8 @@ public class EnviarPedidoService : IEnviarPedidoService
 
             var message = $"Que ótima noticia, mais um pedido!\nN. do pedido : {pedidoCreateModel.Pedido.Numero}";
             var assunto = "Novo pedido";
-            var emailModel = new EnvioEmailModel()
+
+            var emailModel = new ToEnvioEmailModel()
             {
                 Assunto = assunto,
                 Email = pedidoCreateModel.EmailEnvio,
@@ -32,7 +43,7 @@ public class EnviarPedidoService : IEnviarPedidoService
                 TipoDoArquivo = "application/pdf"
             };
 
-            await _emailService.SendEmail(emailModel);
+            await _emailService.SendEmail(emailModel, _fromEmailModel);
         }
         catch (Exception ex)
         {

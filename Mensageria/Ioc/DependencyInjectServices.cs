@@ -1,4 +1,6 @@
-﻿using Mensageria.Interfaces;
+﻿using Domain.Pkg.Interfaces;
+using Domain.Pkg.Services;
+using Mensageria.Interfaces;
 using Mensageria.Service;
 
 namespace Mensageria.Ioc;
