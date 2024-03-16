@@ -21,8 +21,8 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release
     - name: Build-Image-Docker
-      run: docker build ./Mensageria -t brunobentocaina/open-adm-mensageria:staging
+      run: docker build ./Mensageria -t brunobentocaina/open-adm-mensageria:latest
     - name: Push
       run: |
         docker login -u brunobentocaina -p ${{ secrets.DOCKER_HUB_KEY }}
-        docker push brunobentocaina/open-adm-mensageria:staging
+        docker push brunobentocaina/open-adm-mensageria:latest
