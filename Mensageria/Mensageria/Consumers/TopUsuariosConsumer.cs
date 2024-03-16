@@ -7,14 +7,14 @@ using Mensageria.Interfaces;
 
 namespace Mensageria.Mensageria.Consumers;
 
-public class PedidoCreatePdfConsumer : BackgroundService
+public sealed class TopUsuariosConsumer : BackgroundService
 {
     private readonly IModel _channel;
     private const string ExchangeName = "pedido-create";
     private readonly string _queueName;
     private readonly IServiceProvider _provider;
 
-    public PedidoCreatePdfConsumer(IModel channel, IServiceProvider provider)
+    public TopUsuariosConsumer(IModel channel, IServiceProvider provider)
     {
         _provider = provider;
         _channel = channel;
@@ -33,16 +33,17 @@ public class PedidoCreatePdfConsumer : BackgroundService
             var message = Encoding.UTF8.GetString(body);
             var pedido = JsonSerializer.Deserialize<PedidoCreateModel>(message);
 
-            if (pedido != null)
+            var headers = e.BasicProperties.Headers;
+
+            if (pedido != null && headers.TryGetValue("Referer", out object? value))
             {
                 using var scope = _provider.CreateScope();
+                var referer = Encoding.UTF8.GetString((byte[])value);
 
                 try
                 {
-                    var pedidoService = scope.ServiceProvider.GetRequiredService<IEnviarPedidoService>();
-                    await pedidoService.EnviarPdfAsync(pedido);
-                    var cached = scope.ServiceProvider.GetRequiredService<ICachedService>();
-                    await cached.RemoveCachedAsync(pedido.Pedido.UsuarioId.ToString());
+                    var service = scope.ServiceProvider.GetRequiredService<ITopUsuarioService>();
+                    await service.AddOrUpdateTopUsuarioAsync(pedido.Pedido, referer);
                 }
                 catch (Exception ex)
                 {
