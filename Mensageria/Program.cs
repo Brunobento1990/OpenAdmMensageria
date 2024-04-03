@@ -1,14 +1,14 @@
 using dotenv.net;
 using Mensageria;
-using QuestPDF.Infrastructure;
 using Domain.Pkg.Cryptography;
 using Mensageria.Ioc;
+using Domain.Pkg.Pdfs.Configure;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 DotEnv.Load();
 
-QuestPDF.Settings.License = LicenseType.Community;
+ConfigurePdfQuest.ConfigureQuest();
 
 builder.Services.InjectServices();
 builder.Services.InjectRepositories();
