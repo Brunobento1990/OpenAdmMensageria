@@ -1,21 +1,20 @@
-﻿
-using Mensageria.Interfaces;
-using Mensageria.Model;
+﻿using RabbitMQ.Client.Events;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
+using Mensageria.Interfaces;
+using Mensageria.Model;
 
 namespace Mensageria.Mensageria.Consumers;
 
-public class MovimentacaoDeProdutosConsumer : BackgroundService
+public class EditItemPedidoConsumer : BackgroundService
 {
     private readonly IModel _channel;
-    private const string ExchangeName = "pedido-entregue";
+    private const string ExchangeName = "pedido-editado";
     private readonly string _queueName;
     private readonly IServiceProvider _provider;
 
-    public MovimentacaoDeProdutosConsumer(IModel channel, IServiceProvider provider)
+    public EditItemPedidoConsumer(IModel channel, IServiceProvider provider)
     {
         _provider = provider;
         _channel = channel;
@@ -37,16 +36,16 @@ public class MovimentacaoDeProdutosConsumer : BackgroundService
 
                 var body = e.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                var pedidoCreateModel = JsonSerializer.Deserialize<PedidoCreateModel>(message);
+                var notificacao = JsonSerializer.Deserialize<NotificarPedidoEditadoModel>(message);
 
-                if (pedidoCreateModel != null)
+                if (notificacao != null)
                 {
                     using var scope = _provider.CreateScope();
 
                     try
                     {
-                        var service = scope.ServiceProvider.GetRequiredService<IMovimentacaoDeProdutoService>();
-                        await service.MovimentarProdutosAsync(pedidoCreateModel.Pedido, referer);
+                        var service = scope.ServiceProvider.GetRequiredService<INotificarPedidoEditadoService>();
+                        await service.NotificarAsync(notificacao);
                     }
                     catch (Exception ex)
                     {

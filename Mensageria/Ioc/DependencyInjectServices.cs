@@ -15,5 +15,6 @@ public static class DependencyInjectServices
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ICachedService, CachedService>();
         services.AddScoped<ITopUsuarioService, TopUsuarioService>();
+        services.AddScoped<INotificarPedidoEditadoService, NotificarPedidoEditadoService>();
     }
 }
