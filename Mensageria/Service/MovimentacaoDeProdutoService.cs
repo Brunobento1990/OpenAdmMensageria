@@ -2,6 +2,7 @@
 using Domain.Pkg.Enum;
 using Mensageria.Infra.Interfaces;
 using Mensageria.Interfaces;
+using Mensageria.Model;
 
 namespace Mensageria.Service;
 
@@ -18,18 +19,17 @@ public class MovimentacaoDeProdutoService : IMovimentacaoDeProdutoService
         _estoqueRepository = estoqueRepository;
     }
 
-    public async Task MovimentarProdutosAsync(Pedido pedido, string referer)
+    public async Task MovimentarProdutosAsync(IList<MovimentacaoDeEstoqueDto> movimentacaoDeEstoqueDtos, string referer)
     {
         var date = DateTime.Now;
-        var produtoIds = pedido
-            .ItensPedido
+        var produtoIds = movimentacaoDeEstoqueDtos
             .DistinctBy(x => x.ProdutoId)
             .Select(x => x.ProdutoId)
             .ToList();
 
         var estoques = await _estoqueRepository.GetAllEstoquesAsync(produtoIds, referer);
 
-        var movimntosDeProdutos = pedido.ItensPedido
+        var movimntosDeProdutos = movimentacaoDeEstoqueDtos
             .Select(x =>
                 new MovimentacaoDeProduto(
                     Guid.NewGuid(),
@@ -37,23 +37,23 @@ public class MovimentacaoDeProdutoService : IMovimentacaoDeProdutoService
                     date,
                     0,
                     x.Quantidade,
-                    TipoMovimentacaoDeProduto.Saida,
+                    x.TipoMovimentacaoDeProduto,
                     x.ProdutoId,
                     x.TamanhoId,
-                    x.PesoId))
+                    x.PesoId,
+                    x.Observacao))
             .ToList();
 
         await _movimentacaoDeProdutoRepository.AddMovimentacaoDeProdutosAsync(movimntosDeProdutos, referer);
 
-
         var newEstoques = new List<Estoque>();
-        foreach (var item in pedido.ItensPedido)
+        foreach (var item in movimentacaoDeEstoqueDtos)
         {
-            bool where(Estoque x) => x.ProdutoId == item.ProdutoId &&
+            bool where(Estoque x) => x.ProdutoId == item?.ProdutoId &&
                 x.TamanhoId == item.TamanhoId &&
                 x.PesoId == item.PesoId;
 
-            ProcessarEstoqueItemPedido(estoques, item, newEstoques, date, where);
+            ProcessarEstoqueItemPedido(estoques, item, newEstoques, date, where, item.TipoMovimentacaoDeProduto);
         }
 
         await _estoqueRepository.UpdateEstoqueAsync(estoques, referer);
@@ -62,17 +62,18 @@ public class MovimentacaoDeProdutoService : IMovimentacaoDeProdutoService
 
     private static void ProcessarEstoqueItemPedido(
         IList<Estoque> estoques,
-        ItensPedido item,
+        MovimentacaoDeEstoqueDto item,
         List<Estoque> newEstoques,
         DateTime date,
-        Func<Estoque, bool> where)
+        Func<Estoque, bool> where,
+        TipoMovimentacaoDeProduto tipoMovimentacaoDeProduto)
     {
         var estoque = estoques
                 .FirstOrDefault(where);
 
         if (estoque != null)
         {
-            estoque.UpdateEstoque(item.Quantidade, TipoMovimentacaoDeProduto.Saida);
+            estoque.UpdateEstoque(item.Quantidade, tipoMovimentacaoDeProduto);
             return;
         }
 
@@ -80,9 +81,12 @@ public class MovimentacaoDeProdutoService : IMovimentacaoDeProdutoService
 
         if (estoque != null)
         {
-            estoque.UpdateEstoque(item.Quantidade, TipoMovimentacaoDeProduto.Saida);
+            estoque.UpdateEstoque(item.Quantidade, tipoMovimentacaoDeProduto);
             return;
         }
+
+        var newQuantidade = tipoMovimentacaoDeProduto == TipoMovimentacaoDeProduto.Entrada ?
+            item.Quantidade : -item.Quantidade;
 
         estoque = new Estoque(
             Guid.NewGuid(),
@@ -90,7 +94,7 @@ public class MovimentacaoDeProdutoService : IMovimentacaoDeProdutoService
             date,
             0,
             item.ProdutoId,
-            -item.Quantidade,
+            newQuantidade,
             item.TamanhoId,
             item.PesoId);
 

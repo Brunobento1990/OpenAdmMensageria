@@ -8,7 +8,8 @@ public static class DependencyInjectConsumer
     {
         services.AddHostedService<PedidoCreatePdfConsumer>();
         services.AddHostedService<ProdutosMaisVendidosConsumer>();
-        services.AddHostedService<MovimentacaoDeProdutosConsumer>();
+        services.AddHostedService<PedidoEntregueConsumer>();
         services.AddHostedService<TopUsuariosConsumer>();
+        services.AddHostedService<EditItemPedidoConsumer>();
     }
 }
